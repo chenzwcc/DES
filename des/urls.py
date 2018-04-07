@@ -15,9 +15,22 @@ Including another URLconf
 """
 from django.conf.urls import url,include
 from django.contrib import admin
+from django.views.static import serve
+from des.settings import STATIC_ROOT,DAE_FILE_UPLOAD_DIR
 
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^dae/',include('dae.urls',namespace='dae'))
+    url(r'^dae/',include('dae.urls',namespace='dae')),
+    # 配置上传文件的访问处理函数
+    url(r'^media/(?P<path>.*)$', serve, {'document_root': DAE_FILE_UPLOAD_DIR}),
+    # 配置static,解决debug为false时static路径设置无效
+    url(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_ROOT}),
+
 ]
+
+
+# 全局404页面配置
+handler404 = 'dae.views.page_not_found'
+# 全局500页面配置
+handler500 = 'dae.views.page_error'

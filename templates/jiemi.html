@@ -1,18 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>DES加解密系统</title>
 
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/dropzone.css" rel="stylesheet">
-    <link href="/static/css/basic.css" rel="stylesheet">
-    <link href="/static/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-    <link href="/static/css/dashboard.css" rel="stylesheet">
-    <script src="/static/js/ie-emulation-modes-warning.js.下载"></script>
-    <script src="/static/js/dropzone.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/dashboard.css"/>
+
 
   </head>
 
@@ -27,9 +23,9 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">DES加解密系统</a>
+          <a class="navbar-brand" href="{% url 'dae:decry' %}">DES加解密系统</a>
         </div>
-        
+
       </div>
     </nav>
 
@@ -37,133 +33,73 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li><a href="jiami.html">加密<span class="sr-only">(current)</span></a></li>
-            <li class="active"><a href="jiemi.html">解密</a></li>      
+            <li><a href="{% url 'dae:encry' %}">加密<span class="sr-only">(current)</span></a></li>
+            <li class="active"><a href="{% url 'dae:decry' %}">解密</a></li>
           </ul>
 
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h3 class="page-header">请添加需解密的文件</h3>
+            <form action="{% url 'dae:decry' %}" method="post" enctype="multipart/form-data">
+                <h3 class="sub-header">请添加需要解密的Excel文件</h3>
+               <div class="form-group">
 
-        <div class="form-group">	
-    		<div id="dropz" class="dropzone">
+                    <input type="file" id="exampleInputFile" name="file"/>
+                    <span id="helpBlock2" class="help-block"></span>
+                </div>
+                {% if err_msg %}
+                <p style="color: red">{{ err_msg }}</p>
+                {% endif %}
+                    <h3 class="sub-header">请添加需要操作的字段并以'!'分割</h3>
+                    <div class="form-group">
 
-            </div>
-		</div>
-			<input type="hidden" name="file_id" ng-model="file_id" id="file_id"/>
-
-          <h3 class="sub-header">请选择对哪一个字段进行解密</h3>
-          <form role="form" action="",mmethod="POST">
-              {% csrf_token %}
-			 
-			  <div class="checkbox">
-			    <label>
-			      <input type="checkbox">请打勾
-			    </label>
-			    <label>
-			      <input type="checkbox">请打勾
-			    </label>
-			    <label>
-			      <input type="checkbox">请打勾
-			    </label>
-			    <label>
-			      <input type="checkbox">请打勾
-			    </label>
-			    <label>
-			      <input type="checkbox">请打勾
-			    </label> 
-			  <!--<input type="submit" value="提交" class="btn btn-success" />-->
-			    
-			  </div>
-			  <input type="submit" value="提交" class="btn btn-success" />
-			  <!--<button type="submit" class="btn btn-success">提交</button>-->
-		  </form>
+                        <input type="text" class="form-control" name="text" id="exampleInputText" placeholder="例如 name!age" value="{{ field_str }}">
+                    </div>
+                    <button id="fileSubmit" type="submit" class="btn btn-success">Submit</button>
+                {% csrf_token %}
+            </form>
+		{% if file_name %}
+            <h3 class="sub-header">解密后的文件</h3>
 		  <div class="table-responsive">
-			  <table class="table">
-			  	<thead>
-		          <tr>
-		            <th>解密后的文件</th>
-		            
-		          </tr>
-		        </thead>
+			  <table class="table table-striped">
 			    <tbody>
 		          <tr>
-		            <th scope="row">1</th>
-		            
+
+		                <a href="{% url 'dae:download' file_name %}">{{ file_name }}</a>
+
 		          </tr>
-		         
+
 		        </tbody>
 			  </table>
 		  </div>
-          
+         {% endif %}
+
+
         </div>
       </div>
     </div>
 
 
-    <script src="/static/js/jquery.min.js.下载"></script>
-{#    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>#}
-    <script src="/static/js/holder.min.js.下载"></script>
-    <script src="/static/js/ie10-viewport-bug-workaround.js.下载"></script>
+    <script src="/static/js/jquery.min.js"></script>
     <script>
-    	var appElement = document.querySelector('div .inmodal');
-    	var myDropzone = new Dropzone("#dropz", {
-        url: "/dae/decry/upload",//文件提交地址
-        method:"post",  //也可用put
-        paramName:"file", //默认为file
-        maxFiles:1,//一次性上传的文件数量上限
-        maxFilesize: 2, //文件大小，单位：MB
-        acceptedFiles: ".xlsx", //上传的类型
-        addRemoveLinks:true,
-        parallelUploads: 1,//一次上传的文件数量
-        //previewsContainer:"#preview",//上传图片的预览窗口
-        dictDefaultMessage:'拖动文件至此或者点击上传',
-        dictMaxFilesExceeded: "您最多只能上传1个文件！",
-        dictResponseError: '文件上传失败!',
-        dictInvalidFileType: "文件类型只能是*.xlsx",
-        dictFallbackMessage:"浏览器不受支持",
-        dictFileTooBig:"文件过大上传文件最大支持.",
-        dictRemoveLinks: "删除",
-        dictCancelUpload: "取消",
-        init:function(){
-            this.on("addedfile", function(file) {
-                //上传文件时触发的事件
-                document.querySelector('div .dz-default').style.display = 'none';
-            });
-            this.on("success",function(file,data){
-                //上传成功触发的事件
-                console.log('ok');
-                angular.element(appElement).scope().file_id = data.data.id;
-            });
-            this.on("error",function (file,data) {
-                //上传失败触发的事件
-                console.log('fail');
-                var message = '';
-                //lavarel框架有一个表单验证，
-                //对于ajax请求，JSON 响应会发送一个 422 HTTP 状态码，
-                //对应file.accepted的值是false，在这里捕捉表单验证的错误提示
-                if (file.accepted){
-                    $.each(data,function (key,val) {
-                        message = message + val[0] + ';';
-                    })
-                    //控制器层面的错误提示，file.accepted = true的时候；
-                    alert(message);
-                }
-            });
-            this.on("removedfile",function(file){
-                //删除文件时触发的方法
-                var file_id = angular.element(appElement).scope().file_id;
-                if (file_id){
-                    $.post('/admin/del/'+ file_id,{'_method':'DELETE'},function (data) {
-                        console.log('删除结果:'+data.message);
-                    })
-                }
-                angular.element(appElement).scope().file_id = 0;
-                document.querySelector('div .dz-default').style.display = 'block';
-            });
-        }
+
+    $("#fileSubmit").click(function() {
+         var oFile=$("#exampleInputFile");
+         var oFileText=$("#exampleInputText");
+         var oFileMessage=$("#helpBlock2");
+
+         if((oFileText.val().indexOf("!")>=1&&oFile.val().indexOf(".xlsx")>=0)||(oFileText.val().indexOf("!")>=1&&oFile.val().indexOf(".xls")>=0)){
+
+         }else{
+            alert("因格式错误导致验证失败,请重新输入！");
+            return false;
+         }
     });
     </script>
-  
 
-</body></html>
+
+    </body>
+</html>
+
+
+
+
